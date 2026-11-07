@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Twitch Category Filter",
+  "version": "0.1.0",
+  "description": "Shows how many viewers each Twitch browse category has within your language and tag filters, and can hide categories with no matches.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.twitch.tv/*", "https://id.twitch.tv/*"],
+  "background": { "service_worker": "src/background.js" },
+  "options_page": "src/options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://www.twitch.tv/*"],
+      "js": ["src/core.js", "src/content.js"],
+      "css": ["src/content.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.twitch.tv/*"],
+      "js": ["src/page.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    }
+  ]
+}

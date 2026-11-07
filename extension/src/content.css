@@ -1,0 +1,262 @@
+[data-tf-hidden] {
+  display: none !important;
+}
+
+.tf-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--color-background-alt, #1f1f23);
+  color: var(--color-text-base, #efeff1);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.tf-button {
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--color-background-button-secondary-default, #3a3a3d);
+  color: var(--color-text-button-secondary, #efeff1);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.tf-button::-webkit-details-marker {
+  display: none;
+}
+
+.tf-button:hover:not(:disabled) {
+  background: var(--color-background-button-secondary-hover, #47474b);
+}
+
+.tf-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tf-button:focus-visible,
+.tf-input:focus-visible,
+.tf-badge:focus-visible,
+.tf-game-row:focus-visible,
+.tf-stream:focus-visible {
+  outline: 2px solid var(--color-border-input-focus, #bf94ff);
+  outline-offset: 1px;
+}
+
+.tf-attention {
+  background: var(--color-background-button-primary-default, #9147ff);
+  color: #fff;
+}
+
+.tf-languages {
+  position: relative;
+}
+
+.tf-menu {
+  position: absolute;
+  z-index: 3000;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 200px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px;
+  border-radius: 6px;
+  background: var(--color-background-base, #18181b);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.tf-menu-item {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tf-menu-item:hover {
+  background: var(--color-background-alt, #1f1f23);
+}
+
+.tf-input {
+  width: 170px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-border-input, #5c5c60);
+  border-radius: 4px;
+  background: var(--color-background-input, #18181b);
+  color: inherit;
+  font: inherit;
+}
+
+.tf-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.tf-status {
+  flex: 1 1 260px;
+  color: var(--color-text-alt-2, #adadb8);
+}
+
+.tf-status-error {
+  color: var(--color-text-error, #ff8280);
+}
+
+.tf-badge {
+  display: block;
+  max-width: 100%;
+  margin: 2px 0;
+  padding: 1px 6px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 4px;
+  background: var(--color-background-button-primary-default, #9147ff);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tf-badge:hover:not(:disabled) {
+  background: var(--color-background-button-primary-hover, #772ce8);
+}
+
+.tf-badge-empty {
+  background: transparent;
+  color: var(--color-text-alt-2, #adadb8);
+  font-weight: 400;
+  padding-left: 0;
+  cursor: default;
+}
+
+.tf-drawer {
+  position: fixed;
+  z-index: 5000;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100vw);
+  background: var(--color-background-base, #18181b);
+  color: var(--color-text-base, #efeff1);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.tf-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border-base, #38383c);
+}
+
+.tf-drawer-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tf-drawer-sub {
+  margin: 2px 0 0;
+  color: var(--color-text-alt-2, #adadb8);
+}
+
+.tf-drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px 16px;
+}
+
+.tf-game-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.tf-game-row::-webkit-details-marker {
+  display: none;
+}
+
+.tf-game-row:hover {
+  background: var(--color-background-alt, #1f1f23);
+}
+
+.tf-game-name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tf-game-count {
+  flex: none;
+  color: var(--color-text-alt-2, #adadb8);
+}
+
+.tf-streams {
+  margin: 0 0 8px 8px;
+  padding-left: 8px;
+  border-left: 2px solid var(--color-border-base, #38383c);
+}
+
+.tf-stream {
+  display: block;
+  padding: 5px 8px;
+  border-radius: 4px;
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.tf-stream:hover {
+  background: var(--color-background-alt, #1f1f23);
+}
+
+.tf-stream-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tf-stream-name {
+  font-weight: 600;
+}
+
+.tf-stream-viewers {
+  flex: none;
+  color: var(--color-text-alt-2, #adadb8);
+}
+
+.tf-stream-title {
+  display: block;
+  overflow: hidden;
+  color: var(--color-text-alt-2, #adadb8);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tf-more {
+  padding: 5px 8px;
+  color: var(--color-text-alt-2, #adadb8);
+  font-size: 12px;
+}

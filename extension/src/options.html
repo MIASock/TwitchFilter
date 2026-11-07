@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Twitch Category Filter settings</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        max-width: 520px;
+        margin: 32px auto;
+        padding: 0 16px;
+        font: 14px/1.5 system-ui, sans-serif;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      label {
+        display: block;
+        margin: 14px 0 4px;
+        font-weight: 600;
+      }
+      input {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 7px 9px;
+        font: inherit;
+      }
+      button {
+        margin-top: 16px;
+        padding: 7px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #result {
+        margin-top: 12px;
+      }
+      .ok {
+        color: #18a058;
+      }
+      .bad {
+        color: #d03050;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Twitch Category Filter</h1>
+    <p>
+      The extension needs your own free Twitch app to read live streams. Register one in the
+      <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noreferrer">Twitch developer console</a>
+      with the OAuth redirect URL <code>http://localhost</code> and the client type Confidential, then paste its
+      details here.
+    </p>
+    <form id="form">
+      <label for="clientId">Client ID</label>
+      <input id="clientId" autocomplete="off" spellcheck="false" required />
+      <label for="clientSecret">Client Secret</label>
+      <input id="clientSecret" type="password" autocomplete="off" required />
+      <button type="submit">Save and test</button>
+    </form>
+    <p id="result" role="status"></p>
+    <p>These details stay in this browser and are only sent to Twitch.</p>
+    <script src="options.js"></script>
+  </body>
+</html>
