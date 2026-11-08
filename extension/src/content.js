@@ -298,15 +298,20 @@
           event.stopPropagation();
           if (badge.dataset.gameId) drawDrawer(badge.dataset.gameId);
         },
-      });
+      },
+      el('span', { class: 'tf-badge-line' }),
+      el('span', { class: 'tf-badge-line tf-badge-sub' }));
     }
     if (badge.parentElement !== body) body.append(badge);
 
+    // Two lines, so busy categories fit on a narrow card: viewers, then live channels.
+    const [main, sub] = badge.children;
     const pending = !game && !state.display.complete;
-    const text = game
-      ? `${label}: ${count(game.viewers, 'viewer')} · ${fmt(game.streams)} live`
-      : `${label}: ${pending ? '…' : '0 viewers'}`;
-    setText(badge, text);
+    setText(main, game ? `${label}: ${count(game.viewers, 'viewer')}` : `${label}: ${pending ? '…' : '0 viewers'}`);
+    setText(sub, game ? count(game.streams, 'live channel') : '');
+    sub.hidden = !game;
+    const title = game ? `${main.textContent} · ${sub.textContent}` : main.textContent;
+    if (badge.title !== title) badge.title = title;
     badge.dataset.gameId = game ? game.id : '';
     badge.disabled = !game;
     badge.classList.toggle('tf-badge-empty', !game);
