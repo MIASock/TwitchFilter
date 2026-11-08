@@ -1,9 +1,23 @@
 {
-  "name": "twitch-category-filter",
+  "name": "category-filter-for-twitch",
   "version": "0.1.0",
   "private": true,
+  "description": "Browser extension that adds language and tag filtered viewer counts to Twitch's browse page.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.2"
+  },
   "scripts": {
     "test": "node --test",
-    "build:firefox": "node scripts/build-firefox.js"
+    "lint": "eslint .",
+    "build": "node scripts/build.js",
+    "lint:firefox": "web-ext lint --source-dir dist/firefox",
+    "check": "npm run lint && npm test && npm run build && npm run lint:firefox"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "web-ext": "^10.8.0"
   }
 }

@@ -1,4 +1,4 @@
-// Pure logic shared by the service worker, the content script and the tests.
+// Pure logic shared by the background, the content script and the tests.
 (function (root) {
   'use strict';
 

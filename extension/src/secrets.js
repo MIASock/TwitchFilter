@@ -4,6 +4,7 @@
 // - Firefox has no setAccessLevel, so it uses the extension's own IndexedDB, which content scripts
 //   cannot open (theirs belongs to twitch.tv).
 'use strict';
+/* exported TFSecrets */
 
 const TFSecrets = (() => {
   const canLockStorage = typeof chrome.storage.local.setAccessLevel === 'function';

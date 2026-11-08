@@ -10,7 +10,7 @@
   const PUMP_MAX_CARDS = 1000;
   const KEEPALIVE_MS = 10000;
   const MAX_LOST_SCANS = 2;
-  const DEFAULT_SETTINGS = { languages: ['de'], tags: [], hard: false };
+  const DEFAULT_SETTINGS = { languages: defaultLanguages(), tags: [], hard: false };
   const fmt = (n) => Number(n).toLocaleString();
   const count = (n, one, many = `${one}s`) => `${fmt(n)} ${Number(n) === 1 ? one : many}`;
 
@@ -23,6 +23,14 @@
     found: 0,
   };
   let lostScans = 0; // scans in a row that ended with the background gone
+
+  // Starts with the browser's language. English is left for the user to pick: it's the largest language
+  // on Twitch, so its scan is the slowest and the one least likely to be what they came for.
+  function defaultLanguages() {
+    const code = String(navigator.language || '').toLowerCase().split('-')[0];
+    const supported = TF.LANGUAGES.some(([language]) => language === code);
+    return supported && code !== 'en' ? [code] : [];
+  }
 
   function el(tag, props = {}, ...children) {
     const node = document.createElement(tag);

@@ -13,17 +13,8 @@ const runs = new Map(); // filterKey -> { ports:Set, controller }
 // TFSecrets keeps the Client Secret and access token where content scripts can't read them. Content
 // scripts keep their filter settings in storage.sync instead.
 const lockSecrets = TFSecrets.lock()
-  .catch((error) => console.error('Twitch Category Filter: could not restrict storage.local', error));
+  .catch((error) => console.error('Category Filter for Twitch: could not restrict storage.local', error));
 chrome.runtime.onStartup.addListener(() => lockSecrets);
-
-// Older versions kept the filter settings in storage.local, where content scripts can no longer read them.
-chrome.runtime.onInstalled.addListener(async () => {
-  const { settings } = await chrome.storage.local.get('settings');
-  if (!settings) return;
-  const synced = await chrome.storage.sync.get('settings');
-  if (!synced.settings) await chrome.storage.sync.set({ settings });
-  await chrome.storage.local.remove('settings');
-});
 
 async function getCredentials() {
   const { clientId = '', clientSecret = '' } = await TFSecrets.get(['clientId', 'clientSecret']);
@@ -69,7 +60,7 @@ async function writeCache(key, entry) {
     await chrome.storage.session.remove(Object.keys(await chrome.storage.session.get(null)));
     await chrome.storage.session.set({ [CACHE_PREFIX + key]: entry });
   } catch (error) {
-    console.warn('Twitch Category Filter: result too large to cache', error);
+    console.warn('Category Filter for Twitch: result too large to cache', error);
   }
 }
 
@@ -118,7 +109,7 @@ async function handleCrawl(port, { filters, force }) {
   if (!force) {
     const cached = await readCache(key);
     if (cached) {
-      port.postMessage({ type: 'done', ...cached, cached: true });
+      port.postMessage({ type: 'done', ...cached });
       return;
     }
   }
@@ -126,13 +117,11 @@ async function handleCrawl(port, { filters, force }) {
   const existing = runs.get(key);
   if (existing) {
     existing.ports.add(port);
-    port.postMessage({ type: 'started', key });
     return;
   }
 
   const run = { ports: new Set([port]), controller: new AbortController() };
   runs.set(key, run);
-  port.postMessage({ type: 'started', key });
   startRun(key, TF.normalizeFilters(filters), run);
 }
 
