@@ -7,10 +7,10 @@
 **See which games a language community is playing on Twitch right now.**
 
 [![GitHub release](https://img.shields.io/github/v/release/MIASock/TwitchFilter?style=for-the-badge)](https://github.com/MIASock/TwitchFilter/releases/latest)
-[![License](https://img.shields.io/github/license/MIASock/TwitchFilter?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/github/license/MIASock/TwitchFilter?style=for-the-badge&cacheSeconds=3600)](LICENSE)
 [![Build status](https://img.shields.io/github/actions/workflow/status/MIASock/TwitchFilter/build.yml?branch=master&style=for-the-badge)](https://github.com/MIASock/TwitchFilter/actions/workflows/build.yml)
 [![eslint code style](https://img.shields.io/badge/code_style-eslint-4b32c3?style=for-the-badge)](eslint.config.js)
-[![Downloads](https://img.shields.io/github/downloads/MIASock/TwitchFilter/total?style=for-the-badge)](https://github.com/MIASock/TwitchFilter/releases)
+[![Downloads](https://img.shields.io/github/downloads/MIASock/TwitchFilter/total?style=for-the-badge&cacheSeconds=3600)](https://github.com/MIASock/TwitchFilter/releases)
 
 [![Chrome 111+](https://img.shields.io/badge/Chrome-111%2B-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#chrome-edge-and-brave)
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](#firefox)
