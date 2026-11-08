@@ -88,6 +88,8 @@ async function connect() {
         mode: 'twitch',
         userAuth: { ...outcome.tokens, login: user.login, userId: user.userId, validatedAt: Date.now() },
       });
+      // Credentials for a way of signing in that's no longer used shouldn't stay around.
+      await TFSecrets.remove(['clientId', 'clientSecret', 'token']);
       signIn = null;
       await render();
       show('Connecting…');
@@ -106,10 +108,15 @@ async function connect() {
   }
 }
 
-async function disconnect() {
+// Cancels the Twitch connection with Twitch and deletes its tokens.
+async function forgetTwitchConnection() {
   const { userAuth } = await TFSecrets.get('userAuth');
   if (userAuth) await TFHelix.revokeToken({ clientId, accessToken: userAuth.accessToken, fetchFn: fetch });
   await TFSecrets.remove('userAuth');
+}
+
+async function disconnect() {
+  await forgetTwitchConnection();
   await render();
   show('Disconnected.');
   await credentialsChanged(); // Open Twitch tabs stop scanning and point to these settings.
@@ -118,6 +125,7 @@ async function disconnect() {
 async function saveOwnApp(event) {
   event.preventDefault();
   show('Testing…');
+  await forgetTwitchConnection(); // An own app replaces the Twitch connection.
   await TFSecrets.set({ mode: 'own', clientId: ui.clientId.value.trim(), clientSecret: ui.clientSecret.value.trim() });
   await render();
   const response = await credentialsChanged();

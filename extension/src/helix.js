@@ -74,11 +74,22 @@
     return { accessToken: data.access_token, refreshToken: data.refresh_token, expiresAt: now() + data.expires_in * 1000 };
   }
 
+  function isTwitchPage(address) {
+    try {
+      const url = new URL(address);
+      return url.protocol === 'https:' && url.hostname === 'www.twitch.tv' && !url.username && !url.password && !url.port;
+    } catch {
+      return false;
+    }
+  }
+
   // Step 1 of signing in: Twitch hands out a code, and the user approves it at verificationUri.
   async function startDeviceFlow({ clientId, fetchFn, now = Date.now }) {
     const response = await postForm(DEVICE_URL, { client_id: clientId, scopes: SCOPES }, fetchFn);
     if (!response.ok) throw new HelixError('http', `Twitch couldn't start signing in (HTTP ${response.status}).`);
     const data = await response.json();
+    // The options page opens this address, so it must be Twitch's own sign-in page and nothing else.
+    if (!isTwitchPage(data.verification_uri)) throw new HelixError('http', 'Twitch sent an unexpected sign-in address.');
     return {
       deviceCode: data.device_code,
       userCode: data.user_code,

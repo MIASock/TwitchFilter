@@ -17,6 +17,7 @@ test('Firefox manifest loads the background helpers as scripts instead of a serv
 test('Firefox manifest has a fixed add-on ID and drops Chrome-only keys', () => {
   const firefox = firefoxManifest(manifest);
   assert.match(firefox.browser_specific_settings.gecko.id, /@/);
+  assert.deepEqual(firefox.browser_specific_settings.gecko.data_collection_permissions, { required: ['authenticationInfo'] });
   assert.equal(firefox.minimum_chrome_version, undefined);
   assert.deepEqual(firefox.content_scripts, manifest.content_scripts);
   assert.equal(firefox.version, manifest.version);

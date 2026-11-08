@@ -29,8 +29,9 @@ function firefoxManifest(manifest) {
         id: FIREFOX_ID,
         // 128 added world: "MAIN" content scripts; 140 added data_collection_permissions.
         strict_min_version: '140.0',
-        // Nothing goes to the developer. The only requests are to Twitch, with the user's own app.
-        data_collection_permissions: { required: ['none'] },
+        // Nothing goes to the developer, but Mozilla counts anything leaving the add-on, and the extension
+        // sends the user's Twitch sign-in tokens to Twitch. Firefox shows this in the install prompt.
+        data_collection_permissions: { required: ['authenticationInfo'] },
       },
       // Firefox for Android reads data_collection_permissions from 142.
       gecko_android: { strict_min_version: '142.0' },

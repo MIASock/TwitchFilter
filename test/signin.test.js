@@ -39,6 +39,16 @@ test('signing in starts a device flow with no scopes', async () => {
   });
 });
 
+test('a sign-in address that is not a Twitch page is refused', async () => {
+  for (const address of [
+    'http://www.twitch.tv/activate', 'https://www.twitch.tv.evil.example/activate', 'https://evil.example/?www.twitch.tv',
+    'javascript:alert(1)', 'https://user@www.twitch.tv/activate', 'https://www.twitch.tv:8443/activate', 'not a url', undefined,
+  ]) {
+    const { fetchFn } = recorder(response(200, { device_code: 'd', expires_in: 1800, interval: 5, user_code: 'C', verification_uri: address }));
+    await assert.rejects(startDeviceFlow({ clientId: 'cid', fetchFn }), /unexpected sign-in address/, String(address));
+  }
+});
+
 test('polling stays pending until the user approves, then returns both tokens', async () => {
   const pending = recorder(response(400, { status: 400, message: 'authorization_pending' }));
   assert.deepEqual(await pollDeviceFlow({ clientId: 'cid', deviceCode: 'dev', fetchFn: pending.fetchFn, now }), { status: 'pending' });

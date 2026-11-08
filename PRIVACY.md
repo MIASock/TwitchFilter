@@ -38,6 +38,8 @@ The extension only sends requests to Twitch:
 
 These requests are covered by [Twitch's privacy notice](https://www.twitch.tv/p/legal/privacy-notice/). Like any app you connect, Twitch records that your account connected the extension's app.
 
+When you install the extension in Firefox, Firefox lists "authentication information" as data it sends. That's these Twitch tokens going to Twitch, and nowhere else.
+
 On twitch.tv, the extension reads the category cards on the browse page to put its counts next to them. It doesn't read or send anything else from the page.
 
 ## Changes
