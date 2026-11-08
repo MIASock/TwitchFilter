@@ -10,7 +10,7 @@ function show(message, ok) {
   result.className = ok ? 'ok' : 'bad';
 }
 
-chrome.storage.local.get(['clientId', 'clientSecret']).then((stored) => {
+TFSecrets.get(['clientId', 'clientSecret']).then((stored) => {
   clientId.value = stored.clientId || '';
   clientSecret.value = stored.clientSecret || '';
 });
@@ -19,8 +19,9 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   result.textContent = 'Testing…';
   result.className = '';
-  await chrome.storage.local.set({ clientId: clientId.value.trim(), clientSecret: clientSecret.value.trim() });
-  const response = await chrome.runtime.sendMessage({ type: 'test-connection' });
+  await TFSecrets.set({ clientId: clientId.value.trim(), clientSecret: clientSecret.value.trim() });
+  // The background drops the old token, tells open Twitch tabs, and tests the new credentials.
+  const response = await chrome.runtime.sendMessage({ type: 'credentials-saved' });
   if (response && response.ok) show('Connected to Twitch. Open twitch.tv/directory to use the filter.', true);
   else show((response && response.message) || 'The test failed.', false);
 });

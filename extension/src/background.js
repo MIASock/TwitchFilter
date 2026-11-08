@@ -1,5 +1,7 @@
-// Service worker: holds the credentials, talks to Twitch, and streams crawl results to open browse pages.
-importScripts('core.js', 'helix.js');
+// Background: holds the credentials, talks to Twitch, and streams crawl results to open browse pages.
+// Chromium runs it as a service worker that loads its helpers here. Firefox runs it as an event page,
+// where the Firefox manifest lists the helpers before this file.
+if (typeof importScripts === 'function') importScripts('core.js', 'helix.js', 'secrets.js');
 
 const CACHE_TTL_MS = 3 * 60 * 1000;
 const PROGRESS_EVERY_PAGES = 5;
@@ -8,13 +10,11 @@ const CACHE_PREFIX = 'result:';
 let tokenPromise = null;
 const runs = new Map(); // filterKey -> { ports:Set, controller }
 
-// storage.local holds the Client Secret and the access token, so only the service worker and the options
-// page may read it. Content scripts run inside twitch.tv and keep their filter settings in storage.sync.
-// The access level does not survive a browser restart, so it is set every time the worker starts.
-const lockLocalStorage = chrome.storage.local
-  .setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
+// TFSecrets keeps the Client Secret and access token where content scripts can't read them. Content
+// scripts keep their filter settings in storage.sync instead.
+const lockSecrets = TFSecrets.lock()
   .catch((error) => console.error('Twitch Category Filter: could not restrict storage.local', error));
-chrome.runtime.onStartup.addListener(() => lockLocalStorage);
+chrome.runtime.onStartup.addListener(() => lockSecrets);
 
 // Older versions kept the filter settings in storage.local, where content scripts can no longer read them.
 chrome.runtime.onInstalled.addListener(async () => {
@@ -26,20 +26,20 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 async function getCredentials() {
-  const { clientId = '', clientSecret = '' } = await chrome.storage.local.get(['clientId', 'clientSecret']);
+  const { clientId = '', clientSecret = '' } = await TFSecrets.get(['clientId', 'clientSecret']);
   return { clientId: clientId.trim(), clientSecret: clientSecret.trim() };
 }
 
 async function fetchNewToken() {
   const { clientId, clientSecret } = await getCredentials();
   const token = await TFHelix.requestAppToken({ clientId, clientSecret, fetchFn: fetch });
-  await chrome.storage.local.set({ token });
+  await TFSecrets.set({ token });
   return token.accessToken;
 }
 
 async function getToken(forceNew) {
   if (!forceNew) {
-    const { token } = await chrome.storage.local.get('token');
+    const { token } = await TFSecrets.get('token');
     if (token && token.expiresAt > Date.now() + 60000) return token.accessToken;
   }
   // Concurrent crawls share one token request.
@@ -141,6 +141,7 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message) => {
     if (message.type === 'crawl') handleCrawl(port, message);
     if (message.type === 'cancel') detachPort(port);
+    // 'keepalive' needs no reply: receiving it is what keeps Firefox's background running.
   });
   port.onDisconnect.addListener(() => detachPort(port));
 });
@@ -148,7 +149,7 @@ chrome.runtime.onConnect.addListener((port) => {
 async function testConnection() {
   const { clientId, clientSecret } = await getCredentials();
   const token = await TFHelix.requestAppToken({ clientId, clientSecret, fetchFn: fetch });
-  await chrome.storage.local.set({ token });
+  await TFSecrets.set({ token });
   await TFHelix.helixGet(TFHelix.buildStreamsUrl({ languages: [] }, undefined, 1), {
     fetchFn: fetch,
     clientId,
@@ -159,25 +160,31 @@ async function testConnection() {
   return { ok: true };
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+// Sent by the options page after it saves new credentials.
+async function onCredentialsSaved() {
+  tokenPromise = null;
+  await TFSecrets.remove('token');
+  notifyTabs({ type: 'credentials-changed' });
+  return testConnection();
+}
+
+function fromOptionsPage(sender) {
+  return sender.id === chrome.runtime.id && typeof sender.url === 'string'
+    && sender.url.startsWith(chrome.runtime.getURL('src/options.html'));
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'open-options') {
     chrome.runtime.openOptionsPage();
     return false;
   }
-  if (message.type === 'test-connection') {
-    testConnection()
+  if (message.type === 'credentials-saved' && fromOptionsPage(sender)) {
+    onCredentialsSaved()
       .then(sendResponse)
       .catch((error) => sendResponse({ ok: false, message: error.message }));
     return true;
   }
   return false;
-});
-
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && (changes.clientId || changes.clientSecret)) {
-    chrome.storage.local.remove('token');
-    notifyTabs({ type: 'credentials-changed' });
-  }
 });
 
 // Only tabs with the content script (twitch.tv) answer; the rest reject, which is expected.

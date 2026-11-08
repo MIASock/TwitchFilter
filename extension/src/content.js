@@ -8,6 +8,8 @@
   const PUMP_WAIT_MS = 1000;
   const PUMP_MAX_IDLE_TRIES = 4;
   const PUMP_MAX_CARDS = 1000;
+  const KEEPALIVE_MS = 10000;
+  const MAX_LOST_SCANS = 2;
   const DEFAULT_SETTINGS = { languages: ['de'], tags: [], hard: false };
   const fmt = (n) => Number(n).toLocaleString();
   const count = (n, one, many = `${one}s`) => `${fmt(n)} ${Number(n) === 1 ? one : many}`;
@@ -20,6 +22,7 @@
     port: null,
     found: 0,
   };
+  let lostScans = 0; // scans in a row that ended with the background gone
 
   function el(tag, props = {}, ...children) {
     const node = document.createElement(tag);
@@ -65,14 +68,28 @@
 
   function connect() {
     if (state.port) return state.port;
-    state.port = chrome.runtime.connect({ name: 'tf-crawl' });
-    state.port.onMessage.addListener(onCrawlMessage);
-    state.port.onDisconnect.addListener(() => {
+    const port = chrome.runtime.connect({ name: 'tf-crawl' });
+    state.port = port;
+    port.onMessage.addListener(onCrawlMessage);
+    // Firefox stops an idle background after 30 s even mid-scan; a message from this side counts as
+    // activity. Chromium doesn't need it, and it costs nothing there.
+    const keepAlive = setInterval(() => {
+      if (state.status.phase !== 'crawling') return;
+      try { port.postMessage({ type: 'keepalive' }); } catch { /* disconnected; handled below */ }
+    }, KEEPALIVE_MS);
+    port.onDisconnect.addListener(() => {
+      clearInterval(keepAlive);
       state.port = null;
-      if (state.status.phase === 'crawling') state.status = { phase: 'idle' };
+      if (state.status.phase === 'crawling') {
+        // A scan that keeps getting cut off would start over forever and use up API requests.
+        lostScans += 1;
+        state.status = lostScans >= MAX_LOST_SCANS
+          ? { phase: 'error', code: 'lost', message: 'The scan keeps stopping before it finishes. Click Refresh to try again.' }
+          : { phase: 'idle' };
+      }
       render();
     });
-    return state.port;
+    return port;
   }
 
   function currentKey() {
@@ -88,6 +105,7 @@
       render();
       return;
     }
+    if (force) lostScans = 0;
     state.status = { phase: 'crawling', pages: 0 };
     render();
     connect().postMessage({
@@ -119,6 +137,7 @@
       const hasFinished = state.display && state.display.key === message.key && state.display.complete;
       if (!hasFinished) showResult(message, false);
     } else if (message.type === 'done') {
+      lostScans = 0;
       state.status = { phase: 'done' };
       showResult(message, true);
     } else if (message.type === 'error') {

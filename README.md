@@ -1,6 +1,6 @@
 # Twitch Category Filter
 
-A browser extension for Chrome, Edge and Brave that adds your filter's numbers to Twitch's browse page.
+A browser extension for Chrome, Edge, Brave and Firefox that adds your filter's numbers to Twitch's browse page.
 
 - Each category card shows how many viewers and live streams match your filter, next to Twitch's global count.
 - **Hide categories with no matches** removes categories where nobody matches.
@@ -18,9 +18,24 @@ Filters are stream language and stream tags. A stream has to match one of the ch
 
 **2. Load the extension.**
 
+In Chrome, Edge or Brave:
+
 1. Open `chrome://extensions` (or `edge://extensions`) and turn on **Developer mode**.
 2. Click **Load unpacked** and pick this repo's `extension` folder.
 3. Open the extension's **Details**, then **Extension options**, enter the Client ID and Secret, and click **Save and test**.
+
+In Firefox (version 140 or later):
+
+1. Build the Firefox copy, which needs [Node.js](https://nodejs.org):
+
+   ```bash
+   npm run build:firefox
+   ```
+
+2. Open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on**, and pick `dist/firefox/manifest.json`.
+3. Open `about:addons`, click the extension's **…** menu, then **Options**, enter the Client ID and Secret, and click **Save and test**. The **Settings** button in the filter bar opens the same page.
+
+Firefox removes temporary add-ons when it closes, so you'll repeat steps 2 and 3 after each restart. To install it for good, Mozilla has to sign it. That's free for add-ons you don't publish: create an account on [addons.mozilla.org](https://addons.mozilla.org/developers/), get API keys, and run `npx web-ext sign --channel=unlisted --source-dir=dist/firefox` with them. Firefox Developer Edition and Nightly can also run unsigned add-ons if you set `xpinstall.signatures.required` to `false` in `about:config`.
 
 **3. Open [twitch.tv/directory](https://www.twitch.tv/directory).** The filter bar appears above the categories, set to German to start with.
 
@@ -30,7 +45,7 @@ Twitch's API has no filtered category counts, but it can list every live stream 
 
 Results are reused for 3 minutes and refreshed every 5 minutes while the browse page is open and visible.
 
-The Client ID, Client Secret and access token stay in the extension's local storage, which only the extension's own background and options page can read. The part that runs on twitch.tv can't read them. Your filter settings are kept in the browser's synced storage, so they follow you to other browsers signed in to the same account.
+The Client ID, Client Secret and access token are kept where only the extension's own background and options page can read them. The part that runs on twitch.tv can't. In Chrome, Edge and Brave that's the extension's local storage, locked to the extension. Firefox can't lock that storage, so there they go in the extension's own database instead. Your filter settings are kept in the browser's synced storage, so they follow you to other browsers signed in to the same account.
 
 ## Limits
 

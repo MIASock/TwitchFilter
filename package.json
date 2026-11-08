@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "build:firefox": "node scripts/build-firefox.js"
   }
 }
