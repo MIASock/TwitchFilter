@@ -137,7 +137,7 @@
     const before = currentKey();
     const filters = TF.normalizeFilters({ ...state.settings, ...patch });
     state.settings = { ...state.settings, ...patch, ...filters };
-    chrome.storage.local.set({ settings: state.settings });
+    chrome.storage.sync.set({ settings: state.settings });
     if (currentKey() !== before) {
       state.display = null;
       state.index = TF.buildIndex([]);
@@ -460,7 +460,8 @@
   }
 
   async function start() {
-    const { settings } = await chrome.storage.local.get('settings');
+    // storage.sync, because storage.local (credentials) is closed to content scripts.
+    const { settings } = await chrome.storage.sync.get('settings');
     state.settings = { ...DEFAULT_SETTINGS, ...settings };
 
     new MutationObserver(scheduleRender).observe(document.body, {
@@ -473,13 +474,16 @@
     setInterval(maybeStartOnBrowse, 30000);
     document.addEventListener('visibilitychange', scheduleRender);
 
-    chrome.storage.onChanged.addListener((changes, area) => {
-      if (area !== 'local') return;
-      if (changes.clientId || changes.clientSecret) {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message && message.type === 'credentials-changed') {
         state.status = { phase: 'idle' };
         lastCrawlAt = 0;
         scheduleRender();
       }
+    });
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== 'sync') return;
       if (changes.settings) {
         const before = currentKey();
         state.settings = { ...DEFAULT_SETTINGS, ...changes.settings.newValue };

@@ -8,6 +8,23 @@ const CACHE_PREFIX = 'result:';
 let tokenPromise = null;
 const runs = new Map(); // filterKey -> { ports:Set, controller }
 
+// storage.local holds the Client Secret and the access token, so only the service worker and the options
+// page may read it. Content scripts run inside twitch.tv and keep their filter settings in storage.sync.
+// The access level does not survive a browser restart, so it is set every time the worker starts.
+const lockLocalStorage = chrome.storage.local
+  .setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })
+  .catch((error) => console.error('Twitch Category Filter: could not restrict storage.local', error));
+chrome.runtime.onStartup.addListener(() => lockLocalStorage);
+
+// Older versions kept the filter settings in storage.local, where content scripts can no longer read them.
+chrome.runtime.onInstalled.addListener(async () => {
+  const { settings } = await chrome.storage.local.get('settings');
+  if (!settings) return;
+  const synced = await chrome.storage.sync.get('settings');
+  if (!synced.settings) await chrome.storage.sync.set({ settings });
+  await chrome.storage.local.remove('settings');
+});
+
 async function getCredentials() {
   const { clientId = '', clientSecret = '' } = await chrome.storage.local.get(['clientId', 'clientSecret']);
   return { clientId: clientId.trim(), clientSecret: clientSecret.trim() };
@@ -159,5 +176,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && (changes.clientId || changes.clientSecret)) {
     chrome.storage.local.remove('token');
+    notifyTabs({ type: 'credentials-changed' });
   }
 });
+
+// Only tabs with the content script (twitch.tv) answer; the rest reject, which is expected.
+async function notifyTabs(message) {
+  for (const tab of await chrome.tabs.query({})) {
+    if (tab.id !== undefined) chrome.tabs.sendMessage(tab.id, message).catch(() => {});
+  }
+}

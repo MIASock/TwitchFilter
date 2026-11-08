@@ -30,6 +30,8 @@ Twitch's API has no filtered category counts, but it can list every live stream 
 
 Results are reused for 3 minutes and refreshed every 5 minutes while the browse page is open and visible.
 
+The Client ID, Client Secret and access token stay in the extension's local storage, which only the extension's own background and options page can read. The part that runs on twitch.tv can't read them. Your filter settings are kept in the browser's synced storage, so they follow you to other browsers signed in to the same account.
+
 ## Limits
 
 - **Language is whatever the streamer selected,** so a mislabelled stream counts under that language.
