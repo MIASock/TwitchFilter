@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Category Filter for Twitch",
   "version": "0.1.0",
-  "description": "Shows how many viewers each Twitch browse category has within your language and tag filters, and can hide categories with no matches.",
+  "description": "Shows how many viewers each Twitch browse category has in your languages and tags, and can hide categories with no matches.",
   "minimum_chrome_version": "111",
   "icons": {
     "16": "icons/icon-16.png",

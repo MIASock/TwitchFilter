@@ -19,6 +19,10 @@
 
 Twitch's browse page counts every viewer worldwide. A category can show 294 viewers and still have no German streams at all. This browser extension adds a second count to every category card, covering only the streams that match your filter.
 
+<p align="center">
+  <img src="assets/screenshots/browse.png" alt="Twitch's browse page with the filter bar, and a German viewer and channel count on each category card">
+</p>
+
 > [!IMPORTANT]
 > **No affiliation**
 >
@@ -82,11 +86,15 @@ Needs Firefox 140 or later. Firefox removes temporary add-ons when it closes, so
 
 Twitch only shares its live stream list with apps a Twitch user has connected, so the extension needs you to connect your account once.
 
+<img src="assets/screenshots/settings.png" align="right" width="360" alt="The extension's settings page with the Connect with Twitch button">
+
 1. The extension's options open by themselves after you install it. To open them later, click the extension's icon in the toolbar, or **Settings** in the filter bar on twitch.tv.
 2. Click **Connect with Twitch**. A Twitch tab opens with a code already filled in.
 3. Check that the code matches the one in the options, and click **Authorize**.
 
 That's it. The connection gives the extension no access to your account: it asks for no permissions and can only read public data, like the list of live streams. You can disconnect in the options at any time, or under **Connections** in your Twitch settings.
+
+<br clear="right">
 
 <details>
 <summary>Using your own Twitch app instead</summary>
@@ -113,6 +121,13 @@ Open [twitch.tv/directory](https://www.twitch.tv/directory). The filter bar appe
 | **Settings** | Opens the extension's options, where you connect your Twitch account. |
 
 Click the count on any card to jump to that category in the Ranking.
+
+<p align="center">
+  <img src="assets/screenshots/hidden.png" width="58%" alt="The browse page with categories that have no German streams hidden">
+  <img src="assets/screenshots/ranking.png" width="38%" alt="The Ranking panel listing every category with German streams, most viewers first">
+</p>
+
+<sub>Screenshots use sample numbers.</sub>
 
 ## How it works
 
@@ -145,6 +160,8 @@ Needs [Node.js](https://nodejs.org) 22.2 or later. To try a change, load the `ex
 | `extension/src/content.js` | The filter bar, card counts, hiding and the Ranking on twitch.tv. |
 | `extension/src/page.js` | Runs in Twitch's own page to ask it for more cards while hiding. |
 | `scripts/build.js` | Builds both browsers' folders and zips. |
+| `assets/` | The icon source and the README screenshots. |
+| `store/` | Store listing images and text for the Chrome, Edge and Firefox stores. |
 
 ## Build
 
@@ -182,6 +199,8 @@ git push origin v0.2.0
 ```
 
 The [Build workflow](.github/workflows/build.yml) runs every check and publishes a GitHub release with both zips attached. Every other push and pull request runs the same checks and keeps the zips as a workflow artifact.
+
+To publish in the stores, upload the release's zips with the images and text in [`store/`](store/README.md).
 
 ## License
 
