@@ -123,8 +123,11 @@ Open [twitch.tv/directory](https://www.twitch.tv/directory). The filter bar appe
 Click the count on any card to jump to that category in the Ranking.
 
 <p align="center">
-  <img src="assets/screenshots/hidden.png" width="58%" alt="The browse page with categories that have no German streams hidden">
-  <img src="assets/screenshots/ranking.png" width="38%" alt="The Ranking panel listing every category with German streams, most viewers first">
+  <img src="assets/screenshots/hidden.png" alt="The browse page with categories that have no German streams hidden">
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/ranking.png" width="460" alt="The Ranking panel listing every category with German streams, most viewers first">
 </p>
 
 <sub>Screenshots use sample numbers.</sub>
