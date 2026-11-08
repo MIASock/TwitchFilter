@@ -16,25 +16,74 @@ const lockSecrets = TFSecrets.lock()
   .catch((error) => console.error('Category Filter for Twitch: could not restrict storage.local', error));
 chrome.runtime.onStartup.addListener(() => lockSecrets);
 
-async function getCredentials() {
-  const { clientId = '', clientSecret = '' } = await TFSecrets.get(['clientId', 'clientSecret']);
-  return { clientId: clientId.trim(), clientSecret: clientSecret.trim() };
+// --- Signing in ---------------------------------------------------------------------------------------------
+//
+// Two ways to reach Twitch:
+// - 'twitch' (default): the user connects their Twitch account to the extension's own app, with the device
+//   code flow in the options page. The background keeps the 4-hour access token fresh with the refresh token.
+// - 'own': the user's own registered app, with its Client ID and Secret and an app access token.
+
+const VALIDATE_EVERY_MS = 60 * 60 * 1000;
+const EXPIRY_MARGIN_MS = 60 * 1000;
+const EXPIRED_MESSAGE = 'Your Twitch connection has expired. Connect again in the extension settings.';
+
+async function getAuth() {
+  const stored = await TFSecrets.get(['mode', 'clientId', 'clientSecret', 'token', 'userAuth']);
+  const mode = stored.mode || (stored.clientSecret ? 'own' : 'twitch');
+  const clientId = mode === 'own' ? String(stored.clientId || '').trim() : TFHelix.OFFICIAL_CLIENT_ID;
+  return { ...stored, mode, clientId };
 }
 
-async function fetchNewToken() {
-  const { clientId, clientSecret } = await getCredentials();
-  const token = await TFHelix.requestAppToken({ clientId, clientSecret, fetchFn: fetch });
+async function appToken(auth, forceNew) {
+  if (!forceNew && auth.token && auth.token.expiresAt > Date.now() + EXPIRY_MARGIN_MS) return auth.token.accessToken;
+  const token = await TFHelix.requestAppToken({
+    clientId: auth.clientId,
+    clientSecret: String(auth.clientSecret || '').trim(),
+    fetchFn: fetch,
+  });
   await TFSecrets.set({ token });
   return token.accessToken;
 }
 
-async function getToken(forceNew) {
-  if (!forceNew) {
-    const { token } = await TFSecrets.get('token');
-    if (token && token.expiresAt > Date.now() + 60000) return token.accessToken;
+async function forgetUser(message) {
+  await TFSecrets.remove('userAuth');
+  throw new TFHelix.HelixError('auth', message);
+}
+
+async function refreshUser(auth) {
+  let tokens;
+  try {
+    tokens = await TFHelix.refreshUserToken({ clientId: auth.clientId, refreshToken: auth.userAuth.refreshToken, fetchFn: fetch });
+  } catch (error) {
+    if (error.code === 'auth') return forgetUser(EXPIRED_MESSAGE);
+    throw error;
   }
-  // Concurrent crawls share one token request.
-  if (!tokenPromise) tokenPromise = fetchNewToken().finally(() => { tokenPromise = null; });
+  const user = await TFHelix.validateToken({ accessToken: tokens.accessToken, fetchFn: fetch });
+  if (!user) return forgetUser(EXPIRED_MESSAGE);
+  const userAuth = { ...tokens, login: user.login, userId: user.userId, validatedAt: Date.now() };
+  await TFSecrets.set({ userAuth });
+  return userAuth.accessToken;
+}
+
+async function userToken(auth, forceNew) {
+  const { userAuth } = auth;
+  if (!userAuth) throw new TFHelix.HelixError('auth', 'Connect your Twitch account in the extension settings to start.');
+  if (forceNew || userAuth.expiresAt <= Date.now() + EXPIRY_MARGIN_MS) return refreshUser(auth);
+  if (Date.now() - (userAuth.validatedAt || 0) >= VALIDATE_EVERY_MS) {
+    const user = await TFHelix.validateToken({ accessToken: userAuth.accessToken, fetchFn: fetch });
+    if (!user) return refreshUser(auth);
+    await TFSecrets.set({ userAuth: { ...userAuth, validatedAt: Date.now() } });
+  }
+  return userAuth.accessToken;
+}
+
+async function getToken(forceNew) {
+  // Concurrent crawls share one token request. That matters for refresh tokens, which work only once.
+  if (!tokenPromise) {
+    tokenPromise = getAuth()
+      .then((auth) => (auth.mode === 'own' ? appToken(auth, forceNew) : userToken(auth, forceNew)))
+      .finally(() => { tokenPromise = null; });
+  }
   return tokenPromise;
 }
 
@@ -67,7 +116,7 @@ async function writeCache(key, entry) {
 async function startRun(key, filters, run) {
   const aggregator = TF.createAggregator(filters);
   try {
-    const { clientId } = await getCredentials();
+    const { clientId } = await getAuth();
     const outcome = await TFHelix.crawlStreams({
       filters,
       clientId,
@@ -136,20 +185,18 @@ chrome.runtime.onConnect.addListener((port) => {
 });
 
 async function testConnection() {
-  const { clientId, clientSecret } = await getCredentials();
-  const token = await TFHelix.requestAppToken({ clientId, clientSecret, fetchFn: fetch });
-  await TFSecrets.set({ token });
+  const { clientId } = await getAuth();
   await TFHelix.helixGet(TFHelix.buildStreamsUrl({ languages: [] }, undefined, 1), {
     fetchFn: fetch,
     clientId,
-    getToken: async () => token.accessToken,
+    getToken,
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     now: Date.now,
   });
   return { ok: true };
 }
 
-// Sent by the options page after it saves new credentials.
+// Sent by the options page whenever it connects, disconnects or saves an own app.
 async function onCredentialsSaved() {
   tokenPromise = null;
   await TFSecrets.remove('token');

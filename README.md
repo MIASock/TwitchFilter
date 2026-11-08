@@ -80,17 +80,24 @@ Needs Firefox 140 or later. Firefox removes temporary add-ons when it closes, so
 
 ## Setup
 
-Twitch only shares its live stream list with registered apps. The extension has no server of its own, so you register a free Twitch app and the extension uses it straight from your browser. It takes about two minutes.
+Twitch only shares its live stream list with apps a Twitch user has connected, so the extension needs you to connect your account once.
 
-1. Turn on two-factor authentication for your Twitch account, if it isn't already. The developer console requires it.
-2. Open the [Twitch developer console](https://dev.twitch.tv/console/apps) and click **Register Your Application**.
-3. Fill in the form:
-   - **Name:** anything nobody else on Twitch has used.
-   - **OAuth Redirect URLs:** `http://localhost`. The extension never uses it, but Twitch requires one.
-   - **Category:** any.
-   - **Client Type:** Confidential.
-4. Open the new app, copy the **Client ID**, then click **New Secret** and copy the **Client Secret**.
-5. Open the extension's options: on twitch.tv, click **Settings** in the extension's filter bar, or go through your browser's extensions page. Paste both values and click **Save and test**.
+1. Open the extension's options: on twitch.tv, click **Settings** in the extension's filter bar, or go through your browser's extensions page.
+2. Click **Connect with Twitch**. A Twitch tab opens with a code already filled in.
+3. Check that the code matches the one in the options, and click **Authorize**.
+
+That's it. The connection gives the extension no access to your account: it asks for no permissions and can only read public data, like the list of live streams. You can disconnect in the options at any time, or under **Connections** in your Twitch settings.
+
+<details>
+<summary>Using your own Twitch app instead</summary>
+
+Developers can use an app of their own instead of connecting through the extension's app.
+
+1. In the [Twitch developer console](https://dev.twitch.tv/console/apps), register an app with the redirect URL `http://localhost` and the client type **Confidential**. The console requires two-factor authentication on your account.
+2. Copy its **Client ID**, click **New Secret** and copy the **Client Secret**.
+3. In the extension's options, open **Use your own Twitch app instead**, paste both and click **Save and test**.
+
+</details>
 
 ## Usage
 
@@ -103,7 +110,7 @@ Open [twitch.tv/directory](https://www.twitch.tv/directory). The filter bar appe
 | **Hide categories with no matches** | Removes every category where nobody matches, once a scan has finished. |
 | **Ranking** | Lists all matching categories, most viewers first. Open one to see its channels. |
 | **Refresh** | Scans again right away instead of waiting for the next refresh, which comes every 5 minutes. |
-| **Settings** | Opens the extension's options, where your Twitch app details go. |
+| **Settings** | Opens the extension's options, where you connect your Twitch account. |
 
 Click the count on any card to jump to that category in the Ranking.
 
@@ -115,7 +122,7 @@ Each request returns up to 100 streams, so a smaller language takes a handful of
 
 ## Privacy
 
-The extension sends nothing to its developer or to anyone besides Twitch. Your Client ID, Client Secret and access token stay in your browser, out of reach of the part of the extension that runs on twitch.tv, and are only ever sent to Twitch. The [privacy policy](PRIVACY.md) covers what's stored and where it goes.
+The extension sends nothing to its developer or to anyone besides Twitch. Your Twitch tokens stay in your browser, out of reach of the part of the extension that runs on twitch.tv, and are only ever sent to Twitch. The [privacy policy](PRIVACY.md) covers what's stored and where it goes.
 
 ## Dev
 
@@ -131,9 +138,10 @@ Needs [Node.js](https://nodejs.org) 22.2 or later. To try a change, load the `ex
 | --- | --- |
 | `extension/` | The extension, shared by both browsers. Its `manifest.json` is the Chromium manifest. |
 | `extension/src/core.js` | Filtering, per-category totals, and matching cards to categories. No browser APIs, so it's tested in Node. |
-| `extension/src/helix.js` | Twitch API client: app token, paging, retries and rate limits. |
-| `extension/src/background.js` | Holds the credentials and runs scans for the open tabs. |
-| `extension/src/secrets.js` | Credential storage that content scripts can't read. |
+| `extension/src/helix.js` | Twitch client: signing in, tokens, paging, retries and rate limits. |
+| `extension/src/background.js` | Keeps the Twitch tokens fresh and runs scans for the open tabs. |
+| `extension/src/options.js` | The options page: connecting and disconnecting a Twitch account. |
+| `extension/src/secrets.js` | Token storage that content scripts can't read. |
 | `extension/src/content.js` | The filter bar, card counts, hiding and the Ranking on twitch.tv. |
 | `extension/src/page.js` | Runs in Twitch's own page to ask it for more cards while hiding. |
 | `scripts/build.js` | Builds both browsers' folders and zips. |
@@ -181,13 +189,21 @@ MIT © [MIASock](https://github.com/MIASock)
 
 ## FAQ
 
-### Why do I need my own Twitch app?
+### Why do I have to connect my Twitch account?
 
-Twitch requires an app for every request to its API. A shared app would need a server to keep its secret, and every user's requests would count against one rate limit. With your own app, the extension needs no server and you get the full rate limit to yourself.
+Twitch only answers API requests from an app, on behalf of a user who connected it. Connecting through your account keeps the extension serverless: your browser talks to Twitch directly, and nothing passes through anyone else.
+
+### What can the extension do with my account?
+
+Nothing beyond reading public data. It asks Twitch for no permissions, so it can't see your follows, whispers or email, and it can't chat, follow or change anything.
+
+### Why does it ask me to connect again?
+
+Twitch ends the connection after 30 days without use, or when you change your password or disconnect the extension in your Twitch settings. Connecting again takes two clicks.
 
 ### Will this get me rate limited?
 
-Twitch allows each app 800 requests a minute. A scan costs one request per 100 matching streams, and the extension pauses when it gets close to the limit. It also reuses a result for 3 minutes, shares one scan between all open tabs, and doesn't start scans in background tabs.
+Twitch limits requests per user, so your scans never compete with anyone else's. The limit is usually 800 requests a minute, and a scan costs one request per 100 matching streams. The extension pauses when it gets close to the limit, reuses a result for 3 minutes, shares one scan between all open tabs, and doesn't start scans in background tabs.
 
 ### Why does a stream count under the wrong language?
 

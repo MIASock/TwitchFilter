@@ -7,15 +7,72 @@
     <style>
       :root {
         color-scheme: light dark;
+        --accent: #6d4aff;
+        --muted: #8a8a93;
+        --ok: #18a058;
+        --bad: #d03050;
+        --line: rgba(128, 128, 128, 0.35);
       }
       body {
-        max-width: 520px;
+        max-width: 560px;
         margin: 32px auto;
         padding: 0 16px;
         font: 14px/1.5 system-ui, sans-serif;
       }
       h1 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         font-size: 20px;
+      }
+      h1 img {
+        width: 32px;
+        height: 32px;
+      }
+      h2 {
+        margin: 0 0 6px;
+        font-size: 16px;
+      }
+      section {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      button {
+        padding: 7px 14px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button.primary {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+      }
+      button.link {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font-weight: inherit;
+        text-decoration: underline;
+      }
+      .code {
+        margin: 8px 0;
+        font: 600 26px/1.2 ui-monospace, monospace;
+        letter-spacing: 0.15em;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      details {
+        margin-top: 20px;
+      }
+      summary {
+        font-weight: 600;
+        cursor: pointer;
       }
       label {
         display: block;
@@ -28,41 +85,72 @@
         padding: 7px 9px;
         font: inherit;
       }
-      button {
+      form button {
         margin-top: 16px;
-        padding: 7px 14px;
-        font: inherit;
-        font-weight: 600;
-        cursor: pointer;
       }
       #result {
-        margin-top: 12px;
+        min-height: 1.5em;
+        margin-top: 16px;
       }
       .ok {
-        color: #18a058;
+        color: var(--ok);
       }
       .bad {
-        color: #d03050;
+        color: var(--bad);
       }
     </style>
   </head>
   <body>
-    <h1>Category Filter for Twitch</h1>
-    <p>
-      The extension needs your own free Twitch app to read live streams. Register one in the
-      <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noreferrer">Twitch developer console</a>
-      with the OAuth redirect URL <code>http://localhost</code> and the client type Confidential, then paste its
-      details here.
-    </p>
-    <form id="form">
-      <label for="clientId">Client ID</label>
-      <input id="clientId" autocomplete="off" spellcheck="false" required />
-      <label for="clientSecret">Client Secret</label>
-      <input id="clientSecret" type="password" autocomplete="off" required />
-      <button type="submit">Save and test</button>
-    </form>
+    <h1><img src="../icons/icon-128.png" alt="" /> Category Filter for Twitch</h1>
+
+    <section>
+      <h2>Twitch account</h2>
+      <p id="account">Loading…</p>
+
+      <div id="connect-area" hidden>
+        <button id="connect" class="primary" type="button">Connect with Twitch</button>
+      </div>
+
+      <div id="code-area" hidden>
+        <p>A Twitch tab has opened. Check that it shows this code, then click <strong>Authorize</strong>:</p>
+        <p id="user-code" class="code"></p>
+        <p>
+          <a id="verify-link" href="https://www.twitch.tv/activate" target="_blank" rel="noreferrer">Open the Twitch page again</a>
+          · <button id="cancel" class="link" type="button">Cancel</button>
+        </p>
+      </div>
+
+      <div id="disconnect-area" hidden>
+        <button id="disconnect" type="button">Disconnect</button>
+      </div>
+
+      <p class="muted">
+        Connecting gives the extension no access to your account. It only lets the extension read Twitch's list of live
+        streams.
+      </p>
+    </section>
+
+    <details id="own">
+      <summary>Use your own Twitch app instead</summary>
+      <p>
+        For developers who'd rather use their own app. Register one in the
+        <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noreferrer">Twitch developer console</a>
+        with the OAuth redirect URL <code>http://localhost</code> and the client type Confidential, then paste its
+        details here.
+      </p>
+      <form id="own-form">
+        <label for="clientId">Client ID</label>
+        <input id="clientId" autocomplete="off" spellcheck="false" required />
+        <label for="clientSecret">Client Secret</label>
+        <input id="clientSecret" type="password" autocomplete="off" required />
+        <button type="submit">Save and test</button>
+      </form>
+    </details>
+
     <p id="result" role="status"></p>
-    <p>These details stay in this browser and are only sent to Twitch.</p>
+    <p class="muted">Everything here stays in this browser and is only ever sent to Twitch.</p>
+
+    <script src="helix.js"></script>
     <script src="secrets.js"></script>
     <script src="options.js"></script>
   </body>

@@ -1,9 +1,18 @@
-// Twitch Helix client: app token handling and the paged stream crawl.
+// Twitch client: signing in, tokens, and the paged stream crawl.
 (function (root) {
   'use strict';
 
+  // The extension's own Twitch app. A Public client has no secret, so its ID is safe to ship. Public clients
+  // sign users in with the device code flow: https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/
+  const OFFICIAL_CLIENT_ID = '2z8bwz2yjayed3tri24ocv1fhww53p';
+
   const API_BASE = 'https://api.twitch.tv/helix';
   const TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
+  const DEVICE_URL = 'https://id.twitch.tv/oauth2/device';
+  const VALIDATE_URL = 'https://id.twitch.tv/oauth2/validate';
+  const REVOKE_URL = 'https://id.twitch.tv/oauth2/revoke';
+  const DEVICE_GRANT = 'urn:ietf:params:oauth:grant-type:device_code';
+  const SCOPES = ''; // Reading live streams needs no permissions on the user's account.
   const PAGE_SIZE = 100;
   const MAX_PAGES = 600; // 60,000 streams. Keeps a very broad filter from running for minutes.
   const MAX_RETRIES = 4;
@@ -43,6 +52,84 @@
     }
     const data = await response.json();
     return { accessToken: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
+  }
+
+  async function postForm(url, params, fetchFn) {
+    try {
+      return await fetchFn(url, { method: 'POST', body: new URLSearchParams(params) });
+    } catch (error) {
+      throw new HelixError('network', `Could not reach Twitch: ${error.message}`);
+    }
+  }
+
+  async function readError(response) {
+    try {
+      return String((await response.json()).message || '');
+    } catch {
+      return '';
+    }
+  }
+
+  function userTokens(data, now) {
+    return { accessToken: data.access_token, refreshToken: data.refresh_token, expiresAt: now() + data.expires_in * 1000 };
+  }
+
+  // Step 1 of signing in: Twitch hands out a code, and the user approves it at verificationUri.
+  async function startDeviceFlow({ clientId, fetchFn, now = Date.now }) {
+    const response = await postForm(DEVICE_URL, { client_id: clientId, scopes: SCOPES }, fetchFn);
+    if (!response.ok) throw new HelixError('http', `Twitch couldn't start signing in (HTTP ${response.status}).`);
+    const data = await response.json();
+    return {
+      deviceCode: data.device_code,
+      userCode: data.user_code,
+      verificationUri: data.verification_uri,
+      interval: Number(data.interval) || 5,
+      expiresAt: now() + data.expires_in * 1000,
+    };
+  }
+
+  // Step 2, repeated every `interval` seconds: pending until the user approves, then the tokens.
+  async function pollDeviceFlow({ clientId, deviceCode, fetchFn, now = Date.now }) {
+    const response = await postForm(TOKEN_URL, { client_id: clientId, scopes: SCOPES, device_code: deviceCode, grant_type: DEVICE_GRANT }, fetchFn);
+    if (response.ok) return { status: 'done', tokens: userTokens(await response.json(), now) };
+    const message = await readError(response);
+    if (message === 'authorization_pending') return { status: 'pending' };
+    if (message === 'slow_down') return { status: 'slow_down' };
+    throw new HelixError('auth', 'Signing in was cancelled or the code expired. Click Connect to try again.');
+  }
+
+  // Public clients refresh without a secret. Each refresh token works once, so the new one must be kept.
+  async function refreshUserToken({ clientId, refreshToken, fetchFn, now = Date.now }) {
+    const response = await postForm(TOKEN_URL, { client_id: clientId, grant_type: 'refresh_token', refresh_token: refreshToken }, fetchFn);
+    if (response.ok) return userTokens(await response.json(), now);
+    if (response.status === 400 || response.status === 401) {
+      throw new HelixError('auth', 'Your Twitch connection has expired. Connect again in the extension settings.');
+    }
+    throw new HelixError('http', `Twitch returned HTTP ${response.status}.`);
+  }
+
+  // Twitch requires checking a user token when the app starts using it and hourly after that.
+  // Returns null for a token Twitch no longer accepts.
+  async function validateToken({ accessToken, fetchFn }) {
+    let response;
+    try {
+      response = await fetchFn(VALIDATE_URL, { headers: { Authorization: `OAuth ${accessToken}` } });
+    } catch (error) {
+      throw new HelixError('network', `Could not reach Twitch: ${error.message}`);
+    }
+    if (response.status === 401) return null;
+    if (!response.ok) throw new HelixError('http', `Twitch returned HTTP ${response.status}.`);
+    const data = await response.json();
+    return { clientId: data.client_id, login: data.login, userId: data.user_id, expiresIn: data.expires_in };
+  }
+
+  // Best effort: the token is forgotten locally either way.
+  async function revokeToken({ clientId, accessToken, fetchFn }) {
+    try {
+      await fetchFn(REVOKE_URL, { method: 'POST', body: new URLSearchParams({ client_id: clientId, token: accessToken }) });
+    } catch {
+      // Offline or blocked; the token still expires on its own.
+    }
   }
 
   function buildStreamsUrl(filters, cursor, pageSize = PAGE_SIZE) {
@@ -125,7 +212,20 @@
     return { pages, truncated: true };
   }
 
-  const api = { HelixError, requestAppToken, buildStreamsUrl, helixGet, crawlStreams, MAX_PAGES };
+  const api = {
+    OFFICIAL_CLIENT_ID,
+    HelixError,
+    requestAppToken,
+    startDeviceFlow,
+    pollDeviceFlow,
+    refreshUserToken,
+    validateToken,
+    revokeToken,
+    buildStreamsUrl,
+    helixGet,
+    crawlStreams,
+    MAX_PAGES,
+  };
   root.TFHelix = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
