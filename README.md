@@ -82,7 +82,7 @@ Needs Firefox 140 or later. Firefox removes temporary add-ons when it closes, so
 
 Twitch only shares its live stream list with apps a Twitch user has connected, so the extension needs you to connect your account once.
 
-1. Open the extension's options: on twitch.tv, click **Settings** in the extension's filter bar, or go through your browser's extensions page.
+1. The extension's options open by themselves after you install it. To open them later, click the extension's icon in the toolbar, or **Settings** in the filter bar on twitch.tv.
 2. Click **Connect with Twitch**. A Twitch tab opens with a code already filled in.
 3. Check that the code matches the one in the options, and click **Authorize**.
 
@@ -101,7 +101,7 @@ Developers can use an app of their own instead of connecting through the extensi
 
 ## Usage
 
-Open [twitch.tv/directory](https://www.twitch.tv/directory). The filter bar appears above the categories.
+Open [twitch.tv/directory](https://www.twitch.tv/directory). The filter bar appears above the categories. Pick a language or a tag, and each card shows its matching viewers and channels. The languages start as your browser's language, or empty if your browser is in English.
 
 | Control | What it does |
 | --- | --- |

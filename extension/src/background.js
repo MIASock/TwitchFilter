@@ -16,6 +16,12 @@ const lockSecrets = TFSecrets.lock()
   .catch((error) => console.error('Category Filter for Twitch: could not restrict storage.local', error));
 chrome.runtime.onStartup.addListener(() => lockSecrets);
 
+// The settings page is where people connect to Twitch, so open it on first install and from the toolbar icon.
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') chrome.runtime.openOptionsPage();
+});
+chrome.action.onClicked.addListener(() => chrome.runtime.openOptionsPage());
+
 // --- Signing in ---------------------------------------------------------------------------------------------
 //
 // Two ways to reach Twitch:
