@@ -1,110 +1,206 @@
+<div align="center">
+
+<img src="extension/icons/icon-128.png" width="96" height="96" alt="">
+
 # Category Filter for Twitch
 
-See which games a language community is playing on Twitch right now.
+**See which games a language community is playing on Twitch right now.**
 
-Twitch's browse page counts every viewer worldwide. If you want to know what German, Polish or Japanese streamers are playing, the counts don't help: a category can show 294 viewers and still have no German streams at all. This browser extension adds a second count to every category card that includes only the streams matching your filter.
+[![GitHub release](https://img.shields.io/github/v/release/MIASock/TwitchFilter?style=for-the-badge)](https://github.com/MIASock/TwitchFilter/releases/latest)
+[![License](https://img.shields.io/github/license/MIASock/TwitchFilter?style=for-the-badge)](LICENSE)
+[![Build status](https://img.shields.io/github/actions/workflow/status/MIASock/TwitchFilter/build.yml?branch=master&style=for-the-badge)](https://github.com/MIASock/TwitchFilter/actions/workflows/build.yml)
+[![eslint code style](https://img.shields.io/badge/code_style-eslint-4b32c3?style=for-the-badge)](eslint.config.js)
+[![Downloads](https://img.shields.io/github/downloads/MIASock/TwitchFilter/total?style=for-the-badge)](https://github.com/MIASock/TwitchFilter/releases)
 
-- **Filtered counts on every card**, next to Twitch's own: viewers and live channels that match your languages and tags.
+[![Chrome 111+](https://img.shields.io/badge/Chrome-111%2B-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#chrome-edge-and-brave)
+[![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](#firefox)
+
+</div>
+
+Twitch's browse page counts every viewer worldwide. A category can show 294 viewers and still have no German streams at all. This browser extension adds a second count to every category card, covering only the streams that match your filter.
+
+> [!IMPORTANT]
+> **No affiliation**
+>
+> Category Filter for Twitch is an independent, unofficial project. It isn't made by, endorsed by or affiliated with Twitch Interactive, Inc. or Amazon.
+>
+> **Trademarks**
+>
+> "Twitch" and related names, marks and logos are trademarks of Twitch Interactive, Inc. The name is used only to say which site the extension works with.
+>
+> **Limitation of liability**
+>
+> The extension is provided "as is", without warranty of any kind, and you use it at your own risk. See the [license](LICENSE) for the full terms.
+
+## Contents
+
+- [Features](#features)
+- [Download](#download)
+  - [Chrome, Edge and Brave](#chrome-edge-and-brave)
+  - [Firefox](#firefox)
+- [Setup](#setup)
+- [Usage](#usage)
+- [How it works](#how-it-works)
+- [Privacy](#privacy)
+- [Dev](#dev)
+- [Build](#build)
+- [Tests](#tests)
+- [Release](#release)
+- [License](#license)
+- [FAQ](#faq)
+
+## Features
+
+- **Filtered counts on every card**, next to Twitch's own: the viewers and live channels that match your languages and tags.
 - **Hide categories with no matches**, so the browse page lists only what your community is actually streaming.
 - **Ranking**: every matching category, most viewers first, with its top channels one click away.
+- **Your browser's language by default**, with every stream language Twitch supports to choose from.
+- **Light on Twitch's API**: results are reused for 3 minutes, shared between tabs, and background tabs don't start scans.
+- **No server, no tracking**: the extension talks to Twitch and nothing else.
 
-Works in Chrome, Edge, Brave and other Chromium browsers (version 111 or later), and in Firefox 140 or later.
+## Download
 
-Category Filter for Twitch is an independent project. It isn't made by, endorsed by or affiliated with Twitch.
+The extension isn't in the Chrome Web Store or on addons.mozilla.org yet. Until it is, install it from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest).
 
-## Installing
+### Chrome, Edge and Brave
 
-The extension isn't in the Chrome Web Store or on addons.mozilla.org yet. Until it is, install it from a release:
+1. Download `category-filter-for-twitch-<version>-chrome.zip` and unzip it.
+2. Open `chrome://extensions` (`edge://extensions` in Edge) and turn on **Developer mode**.
+3. Click **Load unpacked** and pick the unzipped folder.
 
-1. Download the zip for your browser from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest): `…-chrome.zip` for Chrome, Edge and Brave, `…-firefox.zip` for Firefox.
-2. Load it:
-   - **Chrome, Edge, Brave:** unzip it. Open `chrome://extensions` (`edge://extensions` in Edge), turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
-   - **Firefox:** open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on** and pick the zip. Firefox removes temporary add-ons when it closes, so you'll have to load it again after a restart.
+Any Chromium browser from version 111 works.
 
-## Setting up
+### Firefox
+
+1. Download `category-filter-for-twitch-<version>-firefox.zip`.
+2. Open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on**.
+3. Pick the zip.
+
+Needs Firefox 140 or later. Firefox removes temporary add-ons when it closes, so you'll have to load it again after a restart.
+
+## Setup
 
 Twitch only shares its live stream list with registered apps. The extension has no server of its own, so you register a free Twitch app and the extension uses it straight from your browser. It takes about two minutes.
 
-1. Make sure two-factor authentication is on for your Twitch account. The developer console requires it.
+1. Turn on two-factor authentication for your Twitch account, if it isn't already. The developer console requires it.
 2. Open the [Twitch developer console](https://dev.twitch.tv/console/apps) and click **Register Your Application**.
 3. Fill in the form:
-   - **Name:** anything, as long as no one else on Twitch has used it.
+   - **Name:** anything nobody else on Twitch has used.
    - **OAuth Redirect URLs:** `http://localhost`. The extension never uses it, but Twitch requires one.
    - **Category:** any.
    - **Client Type:** Confidential.
-4. Open the app you just created, copy the **Client ID**, then click **New Secret** and copy the **Client Secret**.
-5. Open the extension's options. The **Settings** button in the extension's filter bar on twitch.tv opens them, or go through your browser's extensions page. Paste both values and click **Save and test**.
+4. Open the new app, copy the **Client ID**, then click **New Secret** and copy the **Client Secret**.
+5. Open the extension's options: on twitch.tv, click **Settings** in the extension's filter bar, or go through your browser's extensions page. Paste both values and click **Save and test**.
 
-## Using it
+## Usage
 
-Open [twitch.tv/directory](https://www.twitch.tv/directory). A filter bar appears above the categories.
+Open [twitch.tv/directory](https://www.twitch.tv/directory). The filter bar appears above the categories.
 
-- **Languages** picks the stream languages to count. It starts with your browser's language, except English, which you choose yourself because it's by far the slowest to scan.
-- **Tags** narrows the count to streams that carry at least one of the tags you list, separated by commas.
-- **Hide categories with no matches** removes every category where nobody matches. It waits until a scan has finished, because only then is it certain a category has no matches.
-- **Ranking** lists all matching categories, most viewers first. Open a category to see its matching channels. Clicking the count on a card jumps straight to that category in the list.
-- **Refresh** scans again right away. Otherwise results refresh every 5 minutes while the page is open and in view.
+| Control | What it does |
+| --- | --- |
+| **Languages** | Picks the stream languages to count. |
+| **Tags** | Counts only streams with at least one of these tags, separated by commas. |
+| **Hide categories with no matches** | Removes every category where nobody matches, once a scan has finished. |
+| **Ranking** | Lists all matching categories, most viewers first. Open one to see its channels. |
+| **Refresh** | Scans again right away instead of waiting for the next refresh, which comes every 5 minutes. |
+| **Settings** | Opens the extension's options, where your Twitch app details go. |
+
+Click the count on any card to jump to that category in the Ranking.
 
 ## How it works
 
-Twitch's API has no way to ask for a filtered count per category, but it can list every live stream in a language. The extension reads that list page by page, adds it up per category, and matches the totals to the cards using the category ID in each card's image address. Matching by ID keeps working when Twitch shows translated category names.
+Twitch's API can't give a filtered count per category, but it can list every live stream in a language. The extension reads that list page by page and adds it up per category. It then matches the totals to the cards using the category ID in each card's image address, which keeps working when Twitch shows translated category names.
 
-Each API request returns up to 100 streams, so a smaller language takes a handful of requests and finishes in seconds. Twitch allows an app 800 requests a minute. The extension pauses when it gets close to that, reuses a result for 3 minutes, shares one scan between open tabs, and doesn't start scans in background tabs.
+Each request returns up to 100 streams, so a smaller language takes a handful of requests and is done in seconds.
 
 ## Privacy
 
-The extension sends nothing to its developer or to anyone else besides Twitch. Your Client ID, Client Secret and access token stay in your browser, where the part of the extension that runs on twitch.tv can't read them. They're only ever sent to Twitch. The full [privacy policy](PRIVACY.md) explains what's stored and where it goes.
+The extension sends nothing to its developer or to anyone besides Twitch. Your Client ID, Client Secret and access token stay in your browser, out of reach of the part of the extension that runs on twitch.tv, and are only ever sent to Twitch. The [privacy policy](PRIVACY.md) covers what's stored and where it goes.
 
-## Limits
-
-- **The language is whatever the streamer picked.** A mislabelled stream counts under the language it's labelled with.
-- **Very broad filters are cut off at 60,000 streams.** That only matters for English, or for a tag filter with no language, which has to go through all of Twitch. The filter bar tells you when it happens.
-- **While hiding, the browse page loads up to about 1,000 categories.** If more categories match, the filter bar says how many aren't shown. Ranking always lists them, up to 300.
-- **Twitch can change its page at any time.** The counts depend on how Twitch builds its category cards, and loading more cards while hiding uses an internal Twitch function. A Twitch redesign can break either until the extension is updated. If only the loading breaks, Ranking still lists everything.
-
-## Development
-
-You need [Node.js](https://nodejs.org) 22.2 or later.
+## Dev
 
 ```bash
+git clone https://github.com/MIASock/TwitchFilter
+cd TwitchFilter
 npm ci
 ```
+
+Needs [Node.js](https://nodejs.org) 22.2 or later. To try a change, load the `extension` folder unpacked in a Chromium browser, or [build](#build) and load `dist/firefox/manifest.json` as a temporary add-on in Firefox.
+
+| Path | What's in it |
+| --- | --- |
+| `extension/` | The extension, shared by both browsers. Its `manifest.json` is the Chromium manifest. |
+| `extension/src/core.js` | Filtering, per-category totals, and matching cards to categories. No browser APIs, so it's tested in Node. |
+| `extension/src/helix.js` | Twitch API client: app token, paging, retries and rate limits. |
+| `extension/src/background.js` | Holds the credentials and runs scans for the open tabs. |
+| `extension/src/secrets.js` | Credential storage that content scripts can't read. |
+| `extension/src/content.js` | The filter bar, card counts, hiding and the Ranking on twitch.tv. |
+| `extension/src/page.js` | Runs in Twitch's own page to ask it for more cards while hiding. |
+| `scripts/build.js` | Builds both browsers' folders and zips. |
+
+## Build
+
+```bash
+npm run build
+```
+
+Writes `dist/chrome` and `dist/firefox`, with a Firefox manifest, plus a zip of each, ready for the stores. The same source always gives byte-identical zips. The build stops if `package.json` and `extension/manifest.json` disagree on the version.
+
+## Tests
+
+```bash
+npm test
+```
+
+Runs the unit tests for the filtering, the Twitch API client and the build, with Node's built-in test runner.
 
 ```bash
 npm run check
 ```
 
-`npm run check` runs everything CI runs: ESLint, the unit tests, the build, and Mozilla's add-on linter on the Firefox build. Each step also has its own script: `npm run lint`, `npm test`, `npm run build` and `npm run lint:firefox`.
+Runs everything CI runs: ESLint, the tests, the build, and Mozilla's add-on linter on the Firefox build.
 
-To try your changes, load the `extension` folder unpacked in a Chromium browser, or run `npm run build` and load `dist/firefox/manifest.json` as a temporary add-on in Firefox.
+## Release
 
-| Path | What's in it |
-| --- | --- |
-| `extension/` | The extension itself, shared by both browsers. Its `manifest.json` is the Chromium manifest. |
-| `extension/src/core.js` | Filtering, per-category totals, and matching cards to categories. No browser APIs, so the tests run it in Node. |
-| `extension/src/helix.js` | Twitch API client: app token, paging, retries and rate limits. |
-| `extension/src/background.js` | Holds the credentials and runs scans for the open tabs. |
-| `extension/src/secrets.js` | Storage for the credentials that content scripts can't read. |
-| `extension/src/content.js` | The filter bar, card counts, hiding and the Ranking panel on twitch.tv. |
-| `extension/src/page.js` | Runs in Twitch's own page to ask it for more cards while hiding. |
-| `scripts/build.js` | Builds `dist/chrome`, `dist/firefox` (with a Firefox manifest) and a zip of each. |
-| `test/` | Unit tests for `core.js`, `helix.js` and the build. |
+1. Raise `version` in both `extension/manifest.json` and `package.json`.
+2. Commit, then tag the commit and push the tag:
 
-### Releasing
+```bash
+git tag v0.2.0
+```
 
-1. Raise `version` in both `extension/manifest.json` and `package.json`. The build fails if they differ.
-2. Commit, then tag and push the tag:
+```bash
+git push origin v0.2.0
+```
 
-   ```bash
-   git tag v0.2.0
-   ```
-
-   ```bash
-   git push origin v0.2.0
-   ```
-
-The Build workflow then runs all checks and publishes a GitHub release with both zips attached. Every other push and pull request runs the same checks and keeps the zips as a workflow artifact.
+The [Build workflow](.github/workflows/build.yml) runs every check and publishes a GitHub release with both zips attached. Every other push and pull request runs the same checks and keeps the zips as a workflow artifact.
 
 ## License
 
-[MIT](LICENSE)
+MIT © [MIASock](https://github.com/MIASock)
+
+## FAQ
+
+### Why do I need my own Twitch app?
+
+Twitch requires an app for every request to its API. A shared app would need a server to keep its secret, and every user's requests would count against one rate limit. With your own app, the extension needs no server and you get the full rate limit to yourself.
+
+### Will this get me rate limited?
+
+Twitch allows each app 800 requests a minute. A scan costs one request per 100 matching streams, and the extension pauses when it gets close to the limit. It also reuses a result for 3 minutes, shares one scan between all open tabs, and doesn't start scans in background tabs.
+
+### Why does a stream count under the wrong language?
+
+The language is whatever the streamer picked in their stream settings, so a mislabelled stream counts under the language it's labelled with.
+
+### Why does the filter bar say some streams may be missing?
+
+A scan stops at 60,000 streams. That only happens with English, or with a tag filter and no language, which has to go through all of Twitch. The small channels at the end of the list are the ones left out.
+
+### Why aren't all matching categories shown while hiding?
+
+While hiding, the browse page loads up to about 1,000 categories. If more categories match, the filter bar tells you how many aren't shown. Ranking always lists them all, up to 300.
+
+### The counts disappeared after a Twitch update. What now?
+
+The extension depends on how Twitch builds its category cards, and loading more cards while hiding uses an internal Twitch function. A Twitch redesign can break either until the extension is updated. If only the loading breaks, Ranking still lists everything. Please [open an issue](https://github.com/MIASock/TwitchFilter/issues) if you spot it first.
