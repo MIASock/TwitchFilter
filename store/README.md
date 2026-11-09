@@ -63,8 +63,6 @@ Category Filter for Twitch is an independent project and isn't affiliated with o
 | Privacy policy | https://github.com/MIASock/TwitchFilter/blob/master/PRIVACY.md |
 | License (Firefox) | MIT License |
 
-The links only work once the repository is public.
-
 ## Chrome Web Store: privacy tab
 
 **Single purpose**

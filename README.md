@@ -12,6 +12,7 @@
 [![eslint code style](https://img.shields.io/badge/code_style-eslint-4b32c3?style=for-the-badge)](eslint.config.js)
 [![Downloads](https://img.shields.io/github/downloads/MIASock/TwitchFilter/total?style=for-the-badge&cacheSeconds=3600)](https://github.com/MIASock/TwitchFilter/releases)
 
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/fokhaolgaiiglmhgdbiafckdoajnaebb?style=for-the-badge&logo=chromewebstore&logoColor=white&label=Chrome%20Web%20Store&color=4285F4)](https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb)
 [![Chrome 111+](https://img.shields.io/badge/Chrome-111%2B-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#chrome-edge-and-brave)
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](#firefox)
 
@@ -64,17 +65,26 @@ Twitch's browse page counts every viewer worldwide. A category can show 294 view
 
 ## Download
 
-The extension isn't in the Chrome Web Store or on addons.mozilla.org yet. Until it is, install it from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest).
-
 ### Chrome, Edge and Brave
 
-1. Download `category-filter-for-twitch-<version>-chrome.zip` and unzip it.
+**[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb)**
+
+Any Chromium browser from version 111 works, including Brave, Opera and Vivaldi. In Edge, click **Allow extensions from other stores** in the banner the first time you open the store.
+
+<details>
+<summary>Installing from a release zip instead</summary>
+
+1. Download `category-filter-for-twitch-<version>-chrome.zip` from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest) and unzip it.
 2. Open `chrome://extensions` (`edge://extensions` in Edge) and turn on **Developer mode**.
 3. Click **Load unpacked** and pick the unzipped folder.
 
-Any Chromium browser from version 111 works.
+An extension loaded this way doesn't update by itself.
+
+</details>
 
 ### Firefox
+
+The extension is waiting for review on addons.mozilla.org. Until it's listed, load it from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest):
 
 1. Download `category-filter-for-twitch-<version>-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on**.
