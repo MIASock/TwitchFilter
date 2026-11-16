@@ -12,10 +12,11 @@
 [![eslint code style](https://img.shields.io/badge/code_style-eslint-4b32c3?style=for-the-badge)](eslint.config.js)
 [![Downloads](https://img.shields.io/github/downloads/MIASock/TwitchFilter/total?style=for-the-badge&cacheSeconds=3600)](https://github.com/MIASock/TwitchFilter/releases)
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/fokhaolgaiiglmhgdbiafckdoajnaebb?style=for-the-badge&logo=chromewebstore&logoColor=white&label=Chrome%20Web%20Store&color=4285F4)](https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb)
-[![Firefox Add-ons](https://img.shields.io/amo/v/category-filter-for-twitch?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/firefox/addon/category-filter-for-twitch/)
 [![Chrome 111+](https://img.shields.io/badge/Chrome-111%2B-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#chrome-edge-and-brave)
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](#firefox)
+
+<a href="https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb"><img src="assets/badges/chrome-web-store.png" height="58" alt="Available in the Chrome Web Store"></a>
+<a href="https://addons.mozilla.org/firefox/addon/category-filter-for-twitch/"><img src="assets/badges/firefox-add-ons.svg" height="58" alt="Get the add-on for Firefox"></a>
 
 </div>
 
@@ -68,7 +69,7 @@ Twitch's browse page counts every viewer worldwide. A category can show 294 view
 
 ### Chrome, Edge and Brave
 
-**[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb)**
+<a href="https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb"><img src="assets/badges/chrome-web-store.png" height="58" alt="Available in the Chrome Web Store"></a>
 
 Any Chromium browser from version 111 works, including Brave, Opera and Vivaldi. In Edge, click **Allow extensions from other stores** in the banner the first time you open the store.
 
@@ -85,7 +86,7 @@ An extension loaded this way doesn't update by itself.
 
 ### Firefox
 
-**[Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/category-filter-for-twitch/)**
+<a href="https://addons.mozilla.org/firefox/addon/category-filter-for-twitch/"><img src="assets/badges/firefox-add-ons.svg" height="58" alt="Get the add-on for Firefox"></a>
 
 Needs Firefox 140 or later, on desktop.
 
@@ -181,7 +182,7 @@ Needs [Node.js](https://nodejs.org) 22.2 or later. To try a change, load the `ex
 | `extension/src/content.js` | The filter bar, card counts, hiding and the Ranking on twitch.tv. |
 | `extension/src/page.js` | Runs in Twitch's own page to ask it for more cards while hiding. |
 | `scripts/build.js` | Builds both browsers' folders and zips. |
-| `assets/` | The icon source and the README screenshots. |
+| `assets/` | The icon source, the README screenshots, and the stores' official buttons. |
 | `store/` | Store listing images and text for the Chrome, Edge and Firefox stores. |
 
 ## Build
