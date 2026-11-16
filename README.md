@@ -13,6 +13,7 @@
 [![Downloads](https://img.shields.io/github/downloads/MIASock/TwitchFilter/total?style=for-the-badge&cacheSeconds=3600)](https://github.com/MIASock/TwitchFilter/releases)
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/fokhaolgaiiglmhgdbiafckdoajnaebb?style=for-the-badge&logo=chromewebstore&logoColor=white&label=Chrome%20Web%20Store&color=4285F4)](https://chromewebstore.google.com/detail/fokhaolgaiiglmhgdbiafckdoajnaebb)
+[![Firefox Add-ons](https://img.shields.io/amo/v/category-filter-for-twitch?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=FF7139)](https://addons.mozilla.org/firefox/addon/category-filter-for-twitch/)
 [![Chrome 111+](https://img.shields.io/badge/Chrome-111%2B-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](#chrome-edge-and-brave)
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](#firefox)
 
@@ -84,13 +85,20 @@ An extension loaded this way doesn't update by itself.
 
 ### Firefox
 
-The extension is waiting for review on addons.mozilla.org. Until it's listed, load it from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest):
+**[Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/category-filter-for-twitch/)**
 
-1. Download `category-filter-for-twitch-<version>-firefox.zip`.
+Needs Firefox 140 or later, on desktop.
+
+<details>
+<summary>Loading a release zip instead</summary>
+
+1. Download `category-filter-for-twitch-<version>-firefox.zip` from the [latest release](https://github.com/MIASock/TwitchFilter/releases/latest).
 2. Open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on**.
 3. Pick the zip.
 
-Needs Firefox 140 or later. Firefox removes temporary add-ons when it closes, so you'll have to load it again after a restart.
+Firefox removes temporary add-ons when it closes, so you'll have to load it again after a restart.
+
+</details>
 
 ## Setup
 
